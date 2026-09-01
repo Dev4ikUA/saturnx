@@ -1,0 +1,4 @@
+# Runtime-generated / local emulator files
+runtime/cores/*.dll
+runtime/system/*.bin
+runtime/saves/*
