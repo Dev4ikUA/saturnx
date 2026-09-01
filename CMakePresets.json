@@ -1,0 +1,59 @@
+﻿{
+  "version": 6,
+
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+
+  "configurePresets": [
+    {
+      "name": "windows-debug",
+      "displayName": "Windows Debug",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/debug",
+
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_EXTENSIONS": "OFF",
+        "CMAKE_C_STANDARD": "11",
+        "CMAKE_C_STANDARD_REQUIRED": "ON",
+        "CMAKE_C_EXTENSIONS": "OFF"
+      }
+    },
+
+    {
+      "name": "windows-release",
+      "displayName": "Windows Release",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/release",
+
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_EXTENSIONS": "OFF",
+        "CMAKE_C_STANDARD": "11",
+        "CMAKE_C_STANDARD_REQUIRED": "ON",
+        "CMAKE_C_EXTENSIONS": "OFF"
+      }
+    }
+  ],
+
+  "buildPresets": [
+    {
+      "name": "windows-debug",
+      "configurePreset": "windows-debug",
+      "configuration": "Debug"
+    },
+
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release",
+      "configuration": "Release"
+    }
+  ]
+}
