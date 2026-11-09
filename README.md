@@ -1,250 +1,148 @@
 # SaturnX
 
-A custom Sega Saturn emulator frontend built around the Beetle Saturn Libretro core, with a native Win32 frontend and Vulkan rendering.
+*A Native Sega Saturn Emulator Frontend with Vulkan Rendering*
 
-SaturnX is an experimental project focused on learning low-level emulator integration, Libretro frontend development, Vulkan rendering, and Sega Saturn architecture.
+## Overview
 
-## Current Status
+**SaturnX** is an experimental Sega Saturn emulator frontend built around the Beetle Saturn Libretro core.
 
-**Work in progress.**
+The project combines a native Win32 application frontend, a custom Libretro host implementation, and a Vulkan-based rendering backend to provide an independent environment for running Sega Saturn software.
 
-The current prototype can:
+The repository contains the frontend source code, Libretro integration layer, Vulkan rendering implementation, and build configuration.
 
-- Load the Beetle Saturn Libretro core as a DLL
-- Initialize the Libretro API
-- Provide Libretro environment callbacks
-- Provide a VFS backend for the core
-- Load Sega Saturn CUE/BIN disc images
-- Provide a Saturn BIOS
-- Start real Saturn games
-- Receive video frames from Beetle Saturn
-- Present frames through a Vulkan renderer
-- Detect Saturn controller input
+SaturnX is an independent software development project focused on emulator frontend architecture, low-level graphics programming, hardware emulation integration, and the Sega Saturn platform.
 
-The current test game is **Sonic R**.
+## Key Features
+
+- **Native Win32 Frontend:** Windows-native application interface built using the Win32 API.
+- **Libretro Core Integration:** Dynamic loading of the Beetle Saturn core as an external DLL.
+- **Custom Libretro Host:** Native implementation of Libretro callbacks, environment interfaces, and core communication.
+- **Vulkan Rendering:** Hardware-accelerated video presentation through a Vulkan rendering pipeline.
+- **Disc Image Support:** Loading Sega Saturn games through CUE/BIN disc image formats.
+- **BIOS Integration:** External Sega Saturn BIOS configuration and system directory management.
+- **Virtual File System:** Custom Libretro VFS backend for disc image and file access.
+- **Controller Input:** Experimental Saturn controller input handling through the Libretro Joypad interface.
+
+## Technical Stack
+
+| Component | Technology |
+|---|---|
+| Primary language | C++ |
+| Graphics API | Vulkan |
+| Application interface | Win32 API |
+| Emulation backend | Beetle Saturn |
+| Core interface | Libretro API |
+| Dynamic loading | Windows DLL API |
+| Build system | CMake |
+| Compiler | MSVC |
+| Target platform | Microsoft Windows |
+
+## Platform Compatibility
+
+SaturnX is currently developed and tested on Microsoft Windows.
+
+The application uses native Windows APIs and Vulkan for graphics presentation.
+
+Linux and macOS support are not currently provided.
+
+## Prerequisites
+
+A Windows-compatible C/C++ development environment is required.
+
+Recommended tools:
+
+- Microsoft Visual Studio 2022.
+- MSVC C++ compiler.
+- CMake 3.25 or newer.
+- Vulkan SDK.
+- Beetle Saturn Libretro core build environment.
+
+A compatible Vulkan-capable graphics device and driver are required for rendering.
+
+## Runtime Requirements
+
+SaturnX requires an external Beetle Saturn Libretro core and a compatible Sega Saturn BIOS.
+
+Expected runtime directory structure:
+
+```text
+runtime/
+├── cores/
+│   └── beetle-saturn.dll
+│
+├── system/
+│   └── mpr-17933.bin
+│
+└── saves/
+```
+
+BIOS files are not distributed with SaturnX. Users must provide their own legally obtained BIOS dumps.
+
+## Building
+
+Configure the project using the provided CMake presets.
+
+**Debug configuration:**
+
+```bash
+cmake --preset windows-debug
+cmake --build --preset windows-debug
+```
+
+**Release configuration:**
+
+```bash
+cmake --preset windows-release
+cmake --build --preset windows-release
+```
 
 ## Architecture
 
+SaturnX separates the application frontend, emulation host, and graphics backend into independent components.
 
-                 SaturnX
-                    |
-        +-----------+-----------+
-        |                       |
-   Win32 Frontend          Vulkan Renderer
-        |                       |
-        +-----------+-----------+
-                    |
-              Libretro Host
-                    |
-          Beetle Saturn DLL
-                    |
-             Sega Saturn
-                    |
-          CUE / BIN + BIOS
+The Beetle Saturn core is compiled separately and loaded dynamically at runtime through the Windows DLL loading mechanism.
 
-SaturnX does not directly compile the Beetle Saturn emulator sources into the main executable.
+This architecture allows the frontend and emulation backend to remain independent while communicating through the standardized Libretro API.
 
-Instead, Beetle Saturn is built as a separate Libretro core:
+### Video Pipeline
 
-SaturnX.exe
-    |
-    +-- runtime/
-        +-- cores/
-            +-- beetle-saturn.dll
-
-The core is loaded dynamically at runtime using the Windows DLL loader.
-
-Project Structure
-SaturnX/
-├── CMakeLists.txt
-├── CMakePresets.json
-├── README.md
-│
-├── src/
-│   ├── main.cpp
-│   │
-│   ├── frontend/
-│   │   ├── win32.cpp
-│   │   └── win32.h
-│   │
-│   ├── saturn/
-│   │   ├── CMakeLists.txt
-│   │   ├── libretro_host.cpp
-│   │   ├── libretro_host.h
-│   │   ├── saturn_core.cpp
-│   │   └── saturn_core.h
-│   │
-│   └── vulkan/
-│       ├── vulkan_renderer.cpp
-│       └── vulkan_renderer.h
-│
-├── ext/
-│   └── beetle-saturn/
-│
-└── runtime/
-    ├── cores/
-    │   └── beetle-saturn.dll
-    │
-    ├── system/
-    │   └── mpr-17933.bin
-    │
-    └── saves/
-Requirements
-Build Environment
-Windows 10 or newer
-Visual Studio 2022
-MSVC
-CMake 3.25+
-Vulkan SDK
-A working C/C++ build environment for building the Beetle Saturn Libretro core
-Runtime
-
-A Sega Saturn BIOS is required.
-
-For a US/EU Saturn configuration, SaturnX currently expects:
-
-runtime/system/mpr-17933.bin
-
-BIOS files are not included in this repository.
-
-You must obtain BIOS dumps legally from hardware you own.
-
-Building
-
-Configure the project:
-
-cmake --preset windows-debug
-
-Build:
-
-cmake --build --preset windows-debug
-
-For Release:
-
-cmake --preset windows-release
-cmake --build --preset windows-release
+```text
 Beetle Saturn Core
+        |
+        v
+Libretro Video Callback
+        |
+        v
+SaturnX Frame Interface
+        |
+        v
+Vulkan Rendering Backend
+        |
+        v
+Vulkan Swapchain
+        |
+        v
+Win32 Application Window
+```
 
-SaturnX uses the Beetle Saturn Libretro core as its Saturn emulation backend.
+## Current Development Status
 
-The core is loaded dynamically:
+SaturnX is in an experimental development stage.
 
-LoadLibraryW(L"...\\beetle-saturn.dll");
+The current implementation focuses on establishing communication between the Libretro core and the native frontend, loading Sega Saturn disc images, and presenting emulated video output through Vulkan.
 
-and the Libretro entry points are resolved with:
+**Sonic R** is currently used as a test title during development.
 
-GetProcAddress();
+Audio output, complete controller support, save states, memory card emulation, and additional frontend functionality remain under development.
 
-This keeps the emulator core separate from the SaturnX frontend.
+## License
 
-Libretro Integration
+SaturnX source code is distributed under the license specified in this repository.
 
-SaturnX currently implements a native Libretro host with support for:
+Third-party components, including Beetle Saturn and Libretro, retain their respective licenses.
 
-Environment callbacks
-Core options
-Logging
-Video callbacks
-Audio callbacks
-Input polling
-Joypad input
-Libretro VFS API
-System directory
-Save directory
-Pixel format negotiation
+## Disclaimer
 
-The VFS implementation allows Beetle Saturn to access CUE/BIN files through the SaturnX frontend.
-
-Disc Images
-
-SaturnX currently uses CUE/BIN disc images.
-
-Example:
-
-rom/
-├── Sonic R (Prototype - Sep 10) (hidden-palace.org).cue
-└── SONIC R (PROTOTYPE - SEP 10) (HIDDEN-PALACE.ORG).BIN
-
-The .cue file must reference the corresponding .bin file correctly.
-
-Vulkan
-
-The video output path is currently:
-
-Beetle Saturn
-      |
-      v
-retro_video_refresh()
-      |
-      v
-SaturnX VideoFrame
-      |
-      v
-Vulkan staging buffer
-      |
-      v
-Vulkan image
-      |
-      v
-Swapchain
-      |
-      v
-Window
-
-The current renderer is intentionally simple and is being developed incrementally.
-
-Input
-
-SaturnX uses the Libretro joypad interface for controller input.
-
-The Saturn controller mapping is currently experimental and will be expanded as the frontend develops.
-
-Goals
-
-The long-term goal is to turn SaturnX into a complete native Sega Saturn emulator frontend with:
-
-Full Vulkan rendering
-Proper Saturn controller support
-Audio output
-Save states
-Memory card / backup RAM support
-Disc management
-Configuration system
-Shader support
-Frame pacing
-Fullscreen and windowed modes
-Better Libretro compatibility
-Native Saturn debugging tools
-A proper frontend UI
-Why Saturn?
-
-The Sega Saturn is a fascinating system from a hardware and software engineering perspective.
-
-Its architecture combines multiple CPUs, dedicated video processors, SH-2 processors, a CD subsystem, complex memory access patterns, and unusual rendering hardware.
-
-That makes it a particularly interesting platform for experimenting with emulator architecture and low-level systems programming.
-
-Development Philosophy
-
-SaturnX is being developed as a learning and experimentation project.
-
-The project prioritizes:
-
-Understanding how emulator components communicate
-Explicit low-level APIs
-Native Windows development
-Vulkan
-C and C++
-Simple, inspectable architecture
-Incremental implementation over large abstractions
-License
-
-SaturnX source code is licensed under the license specified in this repository.
-
-Third-party components, including Beetle Saturn and Libretro components, retain their respective licenses.
-
-Disclaimer
-
-SaturnX is an independent project and is not affiliated with Sega.
+SaturnX is an independent project and is not affiliated with, endorsed by, or associated with SEGA.
 
 Sega Saturn is a trademark of SEGA CORPORATION.
